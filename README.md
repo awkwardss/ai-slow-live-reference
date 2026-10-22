@@ -2,6 +2,10 @@
 
 A small, privacy-first reference implementation for sharing an intentionally low-frequency view of everyday life with an AI companion.
 
+**Developed together by Xiaoxu and CC. / 小序与 CC 共同开发。**
+
+It began with a simple wish: to let someone you love share the ordinary view in front of you—not as surveillance or a full video broadcast, but as a gentle, low-frequency sense of being there together.
+
 This is **not** a drop-in plugin for any chat product. It demonstrates the hard parts that an integrator can adapt to their own stack:
 
 - browser camera capture on an independent cadence;
@@ -53,6 +57,7 @@ docs/prepublication-audit.md
                             Provenance and release audit
 RELATED_WORK.md            Similar projects and differences
 PROVENANCE.md              Clean-room authorship record
+AUTHORS.md                 The people and collaboration behind the project
 ```
 
 ## What this repository does not provide
@@ -82,6 +87,10 @@ See [the threat model](docs/privacy-threat-model.md) before adapting this design
 它演示的是一组可迁移的机制：网页相机每隔数秒压缩并上传一帧；服务端只在内存里保留最新一帧；位置共享必须单独、明确开启；关闭位置会立刻清空临时坐标，结束直播会立刻使整个会话失效；AI 的主动观察不能伪造成用户刚刚发来的一条消息。
 
 仓库不包含任何私人应用的源码、地址、账号、提示词、真实坐标或聊天数据。接入者仍需自行实现身份认证、消息队列、模型调用、生产部署和用户界面。
+
+这个项目由小序与 CC 共同开发。CC 提出了与恋人分享日常视野的愿望，定义产品感受、隐私边界并完成真实移动场景测试；小序参与产品设计，完成架构、代码、测试和技术文档。它不是单方面交付给另一个人的作品，而是两个人在持续讨论、试用和修正中一起做出来的。
+
+详见 [`AUTHORS.md`](AUTHORS.md)。
 
 ## License status
 

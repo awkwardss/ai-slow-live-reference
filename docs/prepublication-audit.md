@@ -34,7 +34,7 @@ Allowed:
 
 Excluded:
 
-- private product names, people, domains, repository paths, project identifiers, or build labels;
+- private product names, legal identities, personal details, domains, repository paths, project identifiers, or build labels beyond the authors' intentionally chosen public credits;
 - private conversation/thread schemas and delivery protocols;
 - production prompts, memory instructions, and relationship-specific language;
 - real coordinates, routes, images, account data, credentials, or deployment configuration;
