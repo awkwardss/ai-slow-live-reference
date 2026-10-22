@@ -66,3 +66,5 @@ Before publication, all of the following must pass:
 ## 5. Attribution boundary
 
 The eventual license governs copying, modifying, and redistributing this repository's code. It does not claim ownership of the broad idea of sending periodic camera frames to an AI, and it does not require attribution from someone who independently implements that general idea without using this code.
+
+That distinction follows the ordinary idea/expression boundary: the [U.S. Copyright Office's software guidance](https://www.copyright.gov/register/tx-programs.html) states that copyright protects a program's copyrightable expression, not its ideas, program logic, algorithms, systems, methods, concepts, or layouts. Laws and facts vary by jurisdiction; this audit records project intent and is not legal advice.
