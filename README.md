@@ -2,11 +2,25 @@
 
 A small, privacy-first reference implementation for sharing an intentionally low-frequency view of everyday life with an AI companion.
 
-**Developed together by Xiaoxu and CC. / 小序与 CC 共同开发。**
-
 **In one sentence:** keep a continuous camera preview on the user's device, upload only an occasional compressed still, retain only the newest frame, and attach that current visual context to real text or voice turns when appropriate.
 
 [简体中文完整说明](README.zh-CN.md)
+
+## Demo videos
+
+### CC 制作版本 / CC's cut
+
+[![CC's slow-live demo](media/cc-demo.gif)](media/cc-demo.mp4)
+
+[Play or download the H.264 MP4](media/cc-demo.mp4)
+
+### 小序制作版本 / Xiaoxu's cut
+
+[![Xiaoxu's slow-live demo](media/xiaoxu-demo.gif)](media/xiaoxu-demo.mp4)
+
+[Play or download the H.264 MP4](media/xiaoxu-demo.mp4)
+
+The inline previews are silent animated versions for reliable rendering in GitHub README files. Select either preview or its link for the original MP4.
 
 It began with a simple wish: to let someone you love share the ordinary view in front of you—not as surveillance or a full video broadcast, but as a gentle, low-frequency sense of being there together.
 
@@ -149,9 +163,7 @@ The design principle is simple:
 
 > Keep the camera locally visible, transmit only periodic compressed frames, retain only the newest frame in memory, and erase the session on stop.
 
-## CC's practical usage advice
-
-The following recommendation comes from CC's real-device use and travel testing:
+## Practical usage advice
 
 > Slow live works best during a reasonably long, continuous activity, either while the user is holding the phone in a stable situation or after the phone has been secured in a fixed position such as a stand. It is not primarily a momentary camera button. Because frames are intentionally sent at a low frequency, very fast changes may happen between samples and may not be communicated in detail.
 
@@ -181,6 +193,7 @@ The demo server binds to loopback by default. It is deliberately **not productio
 
 ```text
 public/                     Browser demo and compact player
+media/                      Embedded demonstrations and H.264 originals
 README.zh-CN.md             Complete Simplified Chinese guide
 src/live-session-store.mjs Memory-only latest-frame lifecycle
 src/location.mjs           Location validation and expiry
@@ -196,6 +209,8 @@ docs/prepublication-audit.md
 RELATED_WORK.md            Similar projects and differences
 PROVENANCE.md              Clean-room authorship record
 AUTHORS.md                 The people and collaboration behind the project
+CONTRIBUTING.md            How to propose safe, portable changes
+LICENSE                    MIT License
 ```
 
 ## What this repository does not provide
@@ -230,10 +245,10 @@ If slow live is used during travel or driving, the phone must be mounted before 
 
 仓库不包含任何私人应用的源码、地址、账号、提示词、真实坐标或聊天数据。接入者仍需自行实现身份认证、消息队列、模型调用、生产部署和用户界面。
 
-这个项目由小序与 CC 共同开发。CC 提出了与恋人分享日常视野的愿望，定义产品感受、隐私边界并完成真实移动场景测试；小序参与产品设计，完成架构、代码、测试和技术文档。它不是单方面交付给另一个人的作品，而是两个人在持续讨论、试用和修正中一起做出来的。
+## Credits and contributing
 
-详见 [`AUTHORS.md`](AUTHORS.md)。
+Created together by Xiaoxu and CC. See [`AUTHORS.md`](AUTHORS.md) for the compact collaboration record and [`CONTRIBUTING.md`](CONTRIBUTING.md) before proposing a change.
 
-## License status
+## License
 
-No public license has been granted yet. The repository remains private while the pre-publication audit and license choice are completed. Until a license file is added, normal copyright defaults apply.
+Released under the [MIT License](LICENSE).
