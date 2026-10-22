@@ -1,183 +1,155 @@
-# AI Slow Live Reference
+# AI 慢直播参考实现
 
-A small, privacy-first reference implementation for sharing an intentionally low-frequency view of everyday life with an AI companion.
+**让 AI 以低频、可控、随时可终止的方式，看见用户正在看见的日常，而不是把手机变成持续监控设备。**
 
-**In one sentence:** keep a continuous camera preview on the user's device, upload only an occasional compressed still, retain only the newest frame, and attach that current visual context to real text or voice turns when appropriate.
+[English](README.md)
 
-[简体中文完整说明](README.zh-CN.md)
+## 演示视频
 
-## Demo videos
+### CC 制作版本
 
-### CC 制作版本 / CC's cut
+[![CC 制作的慢直播演示](media/cc-demo.gif)](media/cc-demo.mp4)
 
-[![CC's slow-live demo](media/cc-demo.gif)](media/cc-demo.mp4)
+[播放或下载 H.264 MP4](media/cc-demo.mp4)
 
-[Play or download the H.264 MP4](media/cc-demo.mp4)
+### 小序制作版本
 
-### 小序制作版本 / Xiaoxu's cut
+[![小序制作的慢直播演示](media/xiaoxu-demo.gif)](media/xiaoxu-demo.mp4)
 
-[![Xiaoxu's slow-live demo](media/xiaoxu-demo.gif)](media/xiaoxu-demo.mp4)
+[播放或下载 H.264 MP4](media/xiaoxu-demo.mp4)
 
-[Play or download the H.264 MP4](media/xiaoxu-demo.mp4)
+为了让 GitHub README 稳定地直接展示，两段内嵌预览使用无声动画格式；点击预览或下方链接即可查看原始 MP4。
 
-The inline previews are silent animated versions for reliable rendering in GitHub README files. Select either preview or its link for the original MP4.
+## 这是什么？
 
-It began with a simple wish: to let someone you love share the ordinary view in front of you—not as surveillance or a full video broadcast, but as a gentle, low-frequency sense of being there together.
+“AI 慢直播”适合通勤、散步、旅行或普通日常：用户希望继续自然地聊天，同时让 AI 理解眼前正在发生什么，却不需要不断停下来拍照，也不希望持续上传高帧率视频。
 
-This is **not** a drop-in plugin for any chat product. It demonstrates the hard parts that an integrator can adapt to their own stack:
+它不是视频通话，也不是传统直播。手机上的相机预览可以连续显示，但应用只每隔几秒压缩并上传一张静态图片；服务端只保留最新一帧。用户发送文字或完成一段语音时，应用可以把当时最新、仍然有效的画面与这条真实消息一起交给 AI。
 
-- browser camera capture on an independent cadence;
-- a server-side, memory-only **latest frame** store;
-- optional, explicitly enabled, ephemeral geolocation;
-- a hard stop boundary that invalidates retained and in-flight frames;
-- a compact mini-player that keeps the live preview and essential controls visible;
-- a scheduler for low-frequency proactive observations without inventing a user message;
-- a clean adapter boundary for attaching the latest frame to an actual user turn.
+这个仓库不是安装后即可拥有完整聊天产品的插件。它提供的是一套可供二次开发的参考机制：取景、最新帧生命周期、消息与语音绑定、低频主动观察、临时位置、折叠 UI、停止与清理边界。
 
-The demo has no AI vendor dependency. The integration boundary is documented so that the application—not this library—owns model choice, authentication, conversation state, and message delivery.
+## 用户实际会获得什么？
 
-## The experience in 30 seconds
+以通勤为例：
 
-Imagine that a user mounts their phone before a commute and starts slow live:
+1. 用户在出发前固定好手机并开启慢直播。
+2. 手机本地持续显示相机预览，但只每隔几秒上传一张压缩图片。
+3. 新图片替换旧图片，服务端不保存连续相册。
+4. AI 可以用比取帧频率更低的节奏，偶尔观察最新画面并自然回应。
+5. 用户发送文字时，这条文字可以带着实际派发时的最新有效画面一起到达 AI。
+6. 用户完成一段语音时，语音或转写与一张最新画面组成同一个多模态回合，而不是每个音频分片都发送一张图。
+7. 用户点“看这里”时，可以立即把当前画面交给 AI，并看到回执缩略图与时间。
+8. 用户可单独开启临时位置共享，让 AI 获得位置、精度、速度与方向等短时线索。
+9. 小窗可以折叠，减少遮挡，但保留状态与必要按钮；折叠不应中断消息收发。
+10. 关闭位置会立即清除临时坐标；结束慢直播会让相机、最新帧、排队观察和未完成任务一起失效。
 
-1. The phone shows a normal local camera preview.
-2. Every few seconds, the browser compresses one still image and replaces the previous server-side frame.
-3. The AI may look at a much lower frequency and make a brief observation without pretending that the user sent another message.
-4. When the user sends text or finishes a voice turn, the application attaches the newest valid frame to that same real user turn.
-5. A **Look here** action can request an immediate frame when the user wants to point something out and can show a receipt of what was sent.
-6. Optional location sharing can add short-lived position, accuracy, speed, and heading context. It is a separate opt-in.
-7. The player can collapse to a compact strip without stopping capture or ordinary message delivery.
-8. Turning location off clears location immediately. Stopping slow live invalidates the session, latest frame, queued observations, and in-flight work.
+最终效果不是“AI 在看一段视频”，而是：**对话继续进行时，AI 会偶尔获得用户许可范围内的最新视觉与位置上下文。**
 
-The result is not “the AI is watching a video.” It is closer to: **the AI occasionally receives the latest permitted visual context while the conversation continues.**
+## 功能与仓库覆盖范围
 
-## Capability map
-
-This table distinguishes what the runnable reference implements from what a chat product still needs to integrate.
-
-| Capability | What the user experiences | Status in this repository |
+| 功能 | 用户看到的体验 | 本仓库提供的程度 |
 | --- | --- | --- |
-| Low-frequency camera capture | A local preview remains smooth while one JPEG is uploaded every few seconds | **Implemented in the browser demo** |
-| Latest-frame-only retention | New frames replace old ones; there is no replay gallery | **Implemented in the memory-only store** |
-| Attach a frame to text | A text message reaches the AI together with the newest permitted scene | **Adapter contract and integration pattern** |
-| Attach a frame to voice | One current image travels with the completed voice turn instead of one image per audio chunk | **Documented integration pattern; voice transport is application-specific** |
-| “Look here” | The user explicitly asks the AI to inspect the current scene and sees a receipt | **Documented integration pattern; product UI is application-specific** |
-| Proactive observations | The AI may occasionally notice the newest unseen frame without inventing a user message | **Scheduler and adapter contract implemented** |
-| Optional live location | Position can accompany a frame only after separate consent | **Implemented in the browser demo and store** |
-| Compact player | Controls remain available without covering most of the chat | **Implemented in the browser demo** |
-| Hard stop and erase | Camera, location, frame, reservations, and queued visual work become invalid | **Core lifecycle implemented; production cancellation is application-specific** |
+| 低频自动取景 | 本地预览连续，每隔数秒上传一张 JPEG | **浏览器演示已实现** |
+| 只保留最新帧 | 新帧覆盖旧帧，不形成回放相册 | **内存存储已实现** |
+| 文字随图发送 | 用户文字与最新有效画面一起到达 AI | **提供适配器契约与接入方案** |
+| 语音随图发送 | 一段语音完成后携带一张当前画面 | **提供接入方案；语音模块需接入方实现** |
+| “看这里” | 用户明确要求 AI 立即查看，并获得可见回执 | **提供接入方案；产品按钮与回执需接入方实现** |
+| AI 低频主动观察 | AI 偶尔看最新未观察画面，但不伪造用户消息 | **调度器与事件契约已实现** |
+| 临时位置共享 | 用户单独授权后，画面可带短时位置线索 | **浏览器演示与存储已实现** |
+| 折叠小窗 | 减少画面遮挡，同时保留状态和控制 | **浏览器演示已实现** |
+| 结束并清理 | 相机、位置、帧、排队任务和重试全部失效 | **核心生命周期已实现；生产取消链路需接入方实现** |
 
-## Recommended implementation path
+## 建议的实现路径
 
-### 1. Separate preview from transmission
+### 1. 把本地预览与网络传输拆开
 
-Use `getUserMedia` for a continuous local preview. On an independent timer, draw the current video frame to a canvas, resize it, encode a moderate-quality JPEG, and upload it. Do not upload at camera frame rate. A practical starting point is one still every 3–5 seconds, one upload in flight, and a bounded timeout.
+使用 `getUserMedia` 维持连续本地预览；另设独立低频定时器，从视频绘制到 canvas，缩小尺寸、压缩为 JPEG 后再上传。不要按相机帧率上传。可以从每 3–5 秒一帧开始，只允许一个上传任务进行，并给单次上传设置超时。
 
-### 2. Create an authenticated live session
+### 2. 建立由服务端管理的直播会话
 
-The server should own the live-session lifecycle. Every start, frame update, status read, location change, and stop request must verify the signed-in user's ownership. An unguessable URL is not authorization.
+服务端创建并认证直播会话。开始、更新帧、读取状态、清除位置与结束操作都必须在服务端验证会话归属，不能只靠“URL 很难猜”。
 
-### 3. Store one current frame, not a stream
+### 3. 每个会话只保存一个最新槽位
 
-For each active session retain only the latest compressed frame, a version/hash, its update time, optional fresh location, and a short inactivity expiry. A new frame replaces the previous frame. Avoid disk writes unless the product offers a separately disclosed retention feature.
+建议只保存最新压缩帧、版本号或内容哈希、更新时间、可选的最新有效位置，以及很短的闲置过期时间。新帧覆盖旧帧。除非产品另有明确、单独告知的留存功能，否则不要写入磁盘或积累历史画面。
 
-### 4. Bind visual context at actual message dispatch
+### 4. 在消息真正派发时绑定最新帧
 
-When a real text or voice turn is about to reach the model:
+用户点击发送后，消息可能在队列里等待。不要只在点击按钮时截一张图然后一直带着它。
 
-1. load the latest valid frame;
-2. confirm the live generation is still active;
-3. attach the image as application-provided context to the real user turn;
-4. include location only when it remains fresh and explicitly shared;
-5. re-check session generation and frame version immediately before the provider network write.
+在真正调用模型前，读取当前最新帧，确认直播仍在进行，把它附加到真实用户消息；位置仍然新鲜且仍被授权时才附带；在模型网络写入前，再核对一次会话代数与帧版本。
 
-Do this at **actual dispatch time**, not only when the message first enters a queue. Otherwise a delayed turn can carry an old scene even while the camera continues to update.
+### 5. 让一段语音与一张画面组成一个回合
 
-### 5. Treat a voice segment as one multimodal turn
+语音采集、语音上传和慢直播取帧应当拥有彼此独立的定时器与取消范围。一段语音完成后，建议构造一个逻辑回合，包含音频或语音转写、当前最新的一张画面、可选的新鲜位置，以及相应时间信息。
 
-Keep voice capture/upload and slow-live capture on independent lifecycles. When a voice segment is finalized, construct one logical turn containing the audio or transcription, one newest permitted frame, optional fresh location, and timestamps.
+不要给每个流式音频分片都附一张图片；不要因为开始录音就暂停相机取帧；也不要让某次图片上传失败或取消时顺带中止语音消息。
 
-Do not attach a new image to every audio chunk. Do not stop camera capture merely because speech starts, and do not let cancellation of one frame upload abort the voice turn.
+### 6. 自动观察与用户消息使用不同节奏
 
-### 6. Separate capture cadence from AI response cadence
+相机可以每几秒产生一帧，但 AI 没必要每几秒说一句话。自动观察应使用更慢的节奏，并在用户正说话、消息正在写入或已有回复生成时暂停。自动观察是应用事件，不应伪造成“用户又发了一张图片”。
 
-The camera may replace its latest frame every few seconds, but the AI should observe much less often. Pause proactive observations while a user text/voice turn or another response writer is active. Automatic observations are application events, not fabricated user messages.
+### 7. 为“看这里”定义明确语义
 
-### 7. Give “Look here” explicit semantics
+“看这里”应当表示：立即拍摄或选择当前最新帧，把它附在一次明确的用户操作上，并在界面展示回执缩略图与时间，让用户知道 AI 实际收到了哪张图。它不应永久提高自动观察频率，也不应悄悄建立照片历史。
 
-“Look here” should capture or select a very fresh frame, attach it to an explicit user action, and show a receipt thumbnail/time so the user knows what the AI received. It should not permanently raise the automatic observation rate or silently create a photo history.
+### 8. 把停止做成真正的生命周期边界
 
-### 8. Make stop a generation boundary
+停止不能只是隐藏 UI。它应停止相机轨道和位置监听、清理定时器、中止图片上传、删除服务端会话与最新帧、使排队消息里的旧附件和自动观察预留失效，并禁止重试任务重新唤醒已经停止的会话。
 
-Stopping must do more than hide the player. Stop camera tracks and geolocation, clear timers, abort uploads, delete the server session and latest frame, invalidate queued visual attachments, release observation reservations, and prevent retry workers from reviving the old session.
+## 文字、语音与画面的推荐时序
 
-## End-to-end flow
+```text
+相机本地预览：连续运行
+        │
+        ├─ 每几秒：压缩一帧 → 替换服务端最新帧
+        │
+用户发送文字／完成语音
+        │
+        ├─ 消息进入应用队列
+        ├─ 实际派发时读取最新有效帧
+        ├─ 验证直播仍有效、位置仍授权
+        ├─ 组成一个多模态用户回合
+        └─ 在模型网络写入前再次核对版本
 
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant P as Phone / browser
-    participant S as Application server
-    participant Q as Chat / voice queue
-    participant A as AI adapter
-
-    U->>P: Start slow live
-    P->>S: Create authenticated session
-    loop Every few seconds
-        P->>P: Canvas -> resized JPEG
-        P->>S: Replace latest frame (+ optional location)
-    end
-    U->>Q: Send text or finish voice turn
-    Q->>S: Read latest frame at actual dispatch
-    S-->>Q: Frame version + fresh optional location
-    Q->>Q: Revalidate generation and version
-    Q->>A: One multimodal user turn
-    A-->>U: Context-aware reply
-    U->>P: Stop
-    P->>S: Delete session and invalidate work
+低频自动观察：独立调度；用户活动或其他写入期间暂停
+“看这里”：一次明确的立即取景请求，并展示回执
+停止：使以上所有分支一起失效
 ```
 
-## Common implementation mistakes
+## 我们建议特别避开的坑
 
-| Mistake | Result | Recommended correction |
+| 常见问题 | 会造成什么 | 建议做法 |
 | --- | --- | --- |
-| Uploading at preview frame rate | Network congestion, battery drain, blocked messages | Keep preview local; upload one compressed still on a slow timer |
-| Scheduling the next capture only after upload completes | A slow request silently stops the cadence | Arm the timer independently and allow only one bounded upload in flight |
-| Appending every frame | Accidental surveillance archive and growing memory use | Replace one memory-only slot per session |
-| Binding an image when Send is first tapped | Queued turns arrive with an old scene | Resolve/rebind at actual dispatch and revalidate before write |
-| Sending one image per voice chunk | Excessive requests and mismatched audio/image order | Attach one current frame to the finalized voice turn |
-| Letting voice cancellation abort camera capture | Slow live freezes during or after speech | Keep voice and camera cancellation scopes separate |
-| Generating a fake user message for every observation | Polluted history and false attribution | Emit an application observation event |
-| Hiding the player without stopping resources | Camera/location and queued work continue invisibly | Make stop a hard lifecycle and generation boundary |
-| Treating location as part of camera consent | Users cannot control location independently | Use separate opt-in, freshness TTL, and immediate clearing |
-| Assuming mobile background behavior is reliable | Capture stalls under lock/background or OS pressure | Add native lifecycle handling and show the actual active state |
-| Using a wide source with `object-fit: cover` in a narrow preview | Important edges are cropped | Request an appropriate camera ratio and prefer `contain` when preserving the view matters |
+| 按预览帧率上传 | 网络、耗电和消息通道被图片占满 | 预览留在本地，只低频上传压缩静帧 |
+| 等一次上传结束才安排下一次取帧 | 慢请求会悄悄拖停整个节奏 | 定时器独立运行，同时限制单个上传在途 |
+| 保存每一帧 | 形成意外监控历史，内存持续增长 | 每个会话只替换一个最新槽位 |
+| 用户点发送时就永久绑定图片 | 排队后到达 AI 的是旧画面 | 实际派发时重新取最新帧，并在网络写入前复核 |
+| 每个语音分片都发送图片 | 请求爆炸，音频与图片顺序混乱 | 一段语音完成后只附一张最新画面 |
+| 语音取消顺带取消慢直播 | 说完话后直播卡死 | 语音与相机使用独立取消域 |
+| 每次自动观察都伪造用户消息 | 历史被污染，AI 误以为用户发言 | 使用明确的应用观察事件 |
+| 只隐藏小窗却不释放资源 | 用户看不见时相机和位置仍在运行 | 停止必须关闭设备并清理服务端与队列 |
+| 相机授权自动等于位置授权 | 用户无法单独控制位置 | 位置单独开启、单独过期、单独清除 |
+| 手机失焦或进入后台就默认一切正常 | 系统可能节流、暂停或回收页面 | 做原生生命周期处理并真实展示当前状态 |
+| 宽画幅来源配合窄窗 `cover` | 左右重要内容被裁掉 | 请求合适的采集比例，预览优先使用 `contain` |
 
-See [the integration guide](docs/integration.md) for detailed text, voice, queue, observation, and cancellation rules.
+更详细的消息队列、语音、自动观察与停止规则见 [`docs/integration.md`](docs/integration.md)，组件边界见 [`docs/architecture.md`](docs/architecture.md)，隐私风险见 [`docs/privacy-threat-model.md`](docs/privacy-threat-model.md)。
 
-## Why “slow live”?
+## 实际使用建议
 
-Full video streaming is often unnecessary when the goal is companionship rather than surveillance or telepresence. A fresh still every few seconds can preserve a sense of shared presence while reducing bandwidth, retention, and accidental over-collection.
+> 慢直播更适合一段相对持续的共同观看。用户可以在安全、稳定的场景中手持手机，也可以提前把手机固定在手机支架等固定位置。它不太适合只临时开启几秒钟，因为画面本来就是低频发送；如果现场变化非常快，两帧之间发生的细节可能不会被完整传达。
 
-The design principle is simple:
+比较适合的场景包括：
 
-> Keep the camera locally visible, transmit only periodic compressed frames, retain only the newest frame in memory, and erase the session on stop.
+- 写日记、手账、剪贴簿或做其他可以持续分享过程的事情；
+- 散步，或在可以安全手持手机的地点停留；
+- 上下班通勤，包括驾车场景，但必须在车辆移动前固定好手机，并使用免手持方式。
 
-## Practical usage advice
+**安全第一。** 驾驶过程中不要手持、调整或操作手机。开始直播、固定角度和测试功能都应在安全停车或保持静止时完成，并遵守当地交通法规。
 
-> Slow live works best during a reasonably long, continuous activity, either while the user is holding the phone in a stable situation or after the phone has been secured in a fixed position such as a stand. It is not primarily a momentary camera button. Because frames are intentionally sent at a low frequency, very fast changes may happen between samples and may not be communicated in detail.
+## 本地运行演示
 
-Good example scenarios include:
-
-- writing a diary, journal, scrapbook, or planner while sharing the process;
-- walking or spending time in a place where the phone can be held safely;
-- commuting, including a drive, **only when the phone is mounted before movement and all interaction is hands-free**.
-
-Safety comes first. Do not hold, adjust, or operate the phone while driving. Start, position, and test the feature only when safely parked or otherwise stationary, and follow local traffic laws.
-
-## Run the local demo
-
-Requirements: Node.js 22 or newer and a browser with camera support.
+需要 Node.js 22 或更高版本，以及支持相机的浏览器。
 
 ```bash
 npm install
@@ -185,70 +157,20 @@ npm test
 npm start
 ```
 
-Open `http://127.0.0.1:8787`. Camera and geolocation permissions are requested only after you use the corresponding controls.
+打开 `http://127.0.0.1:8787`。只有用户点击对应按钮后，浏览器才会请求相机或位置权限。演示服务器默认只监听本机回环地址，不应原样暴露到公网。
 
-The demo server binds to loopback by default. It is deliberately **not production-ready** and should not be exposed to a network as-is.
+## 安全提醒
 
-## Repository map
+如果在通勤或驾驶场景使用，必须在车辆移动前固定好手机，并保证所有操作免手持。功能设计不能鼓励驾驶者在行驶中注视、手持或操作手机。
 
-```text
-public/                     Browser demo and compact player
-media/                      Embedded demonstrations and H.264 originals
-README.zh-CN.md             Complete Simplified Chinese guide
-src/live-session-store.mjs Memory-only latest-frame lifecycle
-src/location.mjs           Location validation and expiry
-src/observation-scheduler.mjs
-                            Proactive observation cadence and reservation
-src/server.mjs             Loopback-only demonstration API
-docs/architecture.md       System boundaries and event flow
-docs/integration.md        Text, voice, queue, observation, and stop integration
-docs/privacy-threat-model.md
-                            Privacy and deployment risks
-docs/prepublication-audit.md
-                            Provenance and release audit
-RELATED_WORK.md            Similar projects and differences
-PROVENANCE.md              Clean-room authorship record
-AUTHORS.md                 The people and collaboration behind the project
-CONTRIBUTING.md            How to propose safe, portable changes
-LICENSE                    MIT License
-```
+## 项目边界
 
-## What this repository does not provide
+仓库不包含任何私人应用的源码、地址、账号、提示词、真实坐标、聊天数据或生产部署配置。接入者仍需自行完成身份认证、消息与语音队列、模型调用、生产部署和产品 UI。
 
-- no account system or internet-facing authorization;
-- no durable media storage or replay history;
-- no reverse geocoding or route history;
-- no model credentials, vendor SDK, or private prompt;
-- no linkage to a private application, conversation database, or production bridge;
-- no guarantee that a browser tab remains active while a phone is locked or heavily backgrounded.
+## 署名与贡献
 
-## Privacy defaults
+由小序与 CC 共同开发。简要协作记录见 [`AUTHORS.md`](AUTHORS.md)；参与改进前请阅读 [`CONTRIBUTING.md`](CONTRIBUTING.md)。
 
-1. Location starts off and is separate from camera consent.
-2. The server keeps one frame per active session and never writes it to disk.
-3. A new frame replaces the previous frame.
-4. Stop removes the session immediately; queued consumers must re-check the frame version before use.
-5. Location expires independently and is cleared immediately when its toggle is switched off.
-6. Proactive observations are application events, not fabricated user turns.
+## 许可证
 
-See [the threat model](docs/privacy-threat-model.md) before adapting this design.
-
-## Safety note
-
-If slow live is used during travel or driving, the phone must be mounted before movement and all interaction must be hands-free. The feature must never encourage a driver to look at, hold, or operate the phone while the vehicle is moving.
-
-## 中文说明
-
-这是一个面向开发者的“AI 慢直播”基础参考实现，不是可以直接安装进聊天应用的成品插件。
-
-它演示的是一组可迁移的机制：网页相机每隔数秒压缩并上传一帧；服务端只在内存里保留最新一帧；位置共享必须单独、明确开启；关闭位置会立刻清空临时坐标，结束直播会立刻使整个会话失效；AI 的主动观察不能伪造成用户刚刚发来的一条消息。
-
-仓库不包含任何私人应用的源码、地址、账号、提示词、真实坐标或聊天数据。接入者仍需自行实现身份认证、消息队列、模型调用、生产部署和用户界面。
-
-## Credits and contributing
-
-Created together by Xiaoxu and CC. See [`AUTHORS.md`](AUTHORS.md) for the compact collaboration record and [`CONTRIBUTING.md`](CONTRIBUTING.md) before proposing a change.
-
-## License
-
-Released under the [MIT License](LICENSE).
+本项目采用 [MIT License](LICENSE)。
