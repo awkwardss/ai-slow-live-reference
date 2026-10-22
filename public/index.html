@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>AI Slow Live Reference</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main>
+      <section class="intro">
+        <p class="eyebrow">Privacy-first reference</p>
+        <h1>AI Slow Live</h1>
+        <p>
+          Share one compressed camera frame every few seconds. The local server keeps only the newest frame in memory.
+          Location is a separate opt-in and disappears when switched off.
+        </p>
+        <button id="start" class="primary" type="button">Start slow live</button>
+      </section>
+
+      <section id="player" class="player" aria-label="Slow live player" hidden>
+        <header>
+          <div class="mini-preview">
+            <video id="preview" autoplay muted playsinline aria-label="Local live camera preview"></video>
+          </div>
+          <div class="status-copy">
+            <strong id="state">Starting…</strong>
+            <small id="details">Waiting for the first frame</small>
+          </div>
+          <button id="collapse" class="icon-button" type="button" aria-expanded="true" aria-label="Collapse player">⌃</button>
+        </header>
+
+        <div class="expanded-body">
+          <div class="large-preview" aria-hidden="true"></div>
+          <div class="explanation">
+            <h2>Latest frame only</h2>
+            <p>The preview remains local and continuous; the server receives periodic JPEG stills.</p>
+            <output id="log" aria-live="polite">No frame uploaded yet.</output>
+          </div>
+        </div>
+
+        <footer>
+          <button id="location" type="button" aria-pressed="false">Share location</button>
+          <button id="stop" class="danger" type="button">Stop and erase</button>
+        </footer>
+      </section>
+
+      <aside class="note">
+        <strong>Local demonstration only.</strong>
+        This server has no production authentication and binds to <code>127.0.0.1</code> by default.
+      </aside>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

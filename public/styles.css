@@ -1,0 +1,109 @@
+:root {
+  color-scheme: light dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --background: #f3f0e8;
+  --surface: rgba(255, 255, 255, 0.88);
+  --ink: #16302a;
+  --muted: #62716d;
+  --line: rgba(22, 48, 42, 0.16);
+  --accent: #2b7c68;
+  --accent-soft: #dceee8;
+  --danger: #a83d46;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(255, 216, 136, 0.38), transparent 34rem),
+    radial-gradient(circle at 90% 85%, rgba(90, 173, 151, 0.24), transparent 32rem),
+    var(--background);
+}
+
+main {
+  width: min(860px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 64px 0;
+}
+
+.intro { max-width: 640px; }
+.eyebrow { margin: 0 0 8px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
+h1 { margin: 0; font-size: clamp(44px, 9vw, 76px); line-height: .95; letter-spacing: -.055em; }
+.intro > p:not(.eyebrow) { max-width: 600px; color: var(--muted); font-size: 18px; line-height: 1.65; }
+
+button {
+  min-height: 42px;
+  padding: 9px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: inherit;
+  background: var(--surface);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+button:disabled { opacity: .5; cursor: wait; }
+.primary { color: white; border-color: var(--accent); background: var(--accent); }
+.danger { color: var(--danger); }
+
+.player {
+  width: min(100%, 720px);
+  margin-top: 32px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: 0 24px 70px rgba(25, 56, 48, .14);
+  backdrop-filter: blur(18px);
+  transition: width .2s ease, border-radius .2s ease;
+}
+
+.player > header { display: grid; grid-template-columns: 64px minmax(0, 1fr) 42px; gap: 12px; align-items: center; }
+.mini-preview { width: 64px; aspect-ratio: 3 / 4; overflow: hidden; border-radius: 12px; background: #0d1916; }
+.mini-preview video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.status-copy { display: grid; min-width: 0; }
+.status-copy strong, .status-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.status-copy small { color: var(--muted); }
+.icon-button { width: 42px; padding: 0; font-size: 20px; }
+
+.expanded-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, .8fr); gap: 16px; margin-top: 12px; }
+.large-preview { min-height: 260px; border-radius: 15px; background: #0d1916; }
+.large-preview::before { content: "The live video remains in the mini preview while this area represents the AI consumer."; display: grid; height: 100%; place-items: center; padding: 24px; color: #b9ccc6; text-align: center; }
+.explanation { padding: 8px; }
+.explanation h2 { margin: 0 0 8px; }
+.explanation p { color: var(--muted); line-height: 1.55; }
+output { display: block; padding: 12px; border-radius: 12px; color: var(--muted); background: var(--accent-soft); font-size: 13px; }
+
+.player > footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+#location[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+.player.collapsed { width: min(100%, 390px); margin-left: auto; border-radius: 15px; }
+.player.collapsed .expanded-body { display: none; }
+.player.collapsed > footer { margin-top: 8px; }
+
+.note { margin-top: 28px; padding: 14px 16px; border-left: 3px solid var(--accent); color: var(--muted); line-height: 1.55; }
+.note strong { color: var(--ink); }
+
+@media (max-width: 640px) {
+  main { padding: 36px 0; }
+  .expanded-body { grid-template-columns: 1fr; }
+  .large-preview { min-height: 180px; }
+  .player > footer { justify-content: stretch; }
+  .player > footer button { flex: 1; }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #101815;
+    --surface: rgba(25, 38, 34, .9);
+    --ink: #e7f1ed;
+    --muted: #a3b4af;
+    --line: rgba(225, 240, 235, .15);
+    --accent: #76c7ad;
+    --accent-soft: #203f36;
+  }
+}

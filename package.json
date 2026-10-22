@@ -1,0 +1,16 @@
+{
+  "name": "ai-slow-live-reference",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A privacy-first reference implementation for sharing low-frequency camera frames and optional ephemeral location with an AI companion.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node --test",
+    "audit": "node scripts/release-audit.mjs",
+    "check": "npm run test && npm run audit"
+  }
+}
