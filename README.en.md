@@ -4,7 +4,7 @@ A small, privacy-first reference implementation for sharing an intentionally low
 
 **In one sentence:** keep a continuous camera preview on the user's device, upload only an occasional compressed still, retain only the newest frame, and attach that current visual context to real text or voice turns when appropriate.
 
-[简体中文完整说明](README.zh-CN.md)
+[简体中文完整说明](README.md)
 
 ## Demo videos
 
@@ -194,7 +194,8 @@ The demo server binds to loopback by default. It is deliberately **not productio
 ```text
 public/                     Browser demo and compact player
 media/                      Embedded demonstrations and H.264 originals
-README.zh-CN.md             Complete Simplified Chinese guide
+README.md                   Default Simplified Chinese guide
+README.en.md                Complete English guide
 src/live-session-store.mjs Memory-only latest-frame lifecycle
 src/location.mjs           Location validation and expiry
 src/observation-scheduler.mjs
